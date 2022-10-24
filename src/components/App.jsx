@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import fetchItems from 'services/api';
 import Searchbar from './Searchbar/Searchbar';
-import * as API from '../services/api';
+// import * as API from '../services/api';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
@@ -18,7 +18,7 @@ export class App extends Component {
     largeImage: '',
   };
   async componentDidUpdate(prevProps, prevState) {
-    const { query, hits, page } = this.state;
+    const { query, page } = this.state;
     if (query !== prevState.query || page !== prevState.page) {
       this.setState({ isLoading: true });
       setTimeout(() => {
