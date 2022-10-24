@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { render } from '@testing-library/react';
 import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import { ModalContainer, Overlay } from './Modal.styled';
