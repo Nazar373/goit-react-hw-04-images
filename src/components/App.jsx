@@ -53,7 +53,8 @@ export class App extends Component {
     if (this.state.query === data) {
       return;
     }
-    this.setState({ query: data, page: 1 });
+    this.setState({ query: data, page: 1, hits: [] });
+
   };
 
   onBtnClick = () => {
@@ -74,7 +75,7 @@ export class App extends Component {
         )}
         {/* <div styled={{display: flex, alignItems: center, flexDirection: column,}}> */}
         <Loader isLoading={this.state.isLoading} />
-        {this.state.page < this.state.maxPage && (
+        {this.state.page < this.state.maxPage && !this.state.isLoading && (
           <Button onClick={this.onBtnClick} />
         )}
         {/* </div> */}
