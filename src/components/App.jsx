@@ -1,85 +1,71 @@
-import React, { Component } from 'react';
-// import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import fetchItems from 'services/api';
 import Searchbar from './Searchbar/Searchbar';
-// import * as API from '../services/api';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
-export class App extends Component {
-  state = {
-    hits: [],
-    query: '',
-    page: 1,
-    isLoading: false,
-    maxPage: 1,
-    showModal: false,
-    largeImage: '',
-  };
-  async componentDidUpdate(prevProps, prevState) {
-    const { query, page } = this.state;
-    if (query !== prevState.query || page !== prevState.page) {
-      this.setState({ isLoading: true });
-      setTimeout(() => {
-        try {
-          fetchItems(query, page).then(resp => {
-            this.setState(prevState => ({
-              hits: [...prevState.hits, ...resp.data.hits],
-              maxPage: Math.ceil(resp.data.totalHits / 12),
-            }));
-          });
-        } catch (err) {
-          console.log(err);
-        } finally {
-          this.setState({ isLoading: false });
-        }
-      }, 1000);
-    }
-  }
 
-  openModal = img => {
-    this.setState(
-      { showModal: true, largeImage: img.largeImageURL }
-    );
-  };
-  closeModal = () => {
-    this.setState(() => ({
-      showModal: false,
-    }))
-  }
+export function App() {
+  const [hits, setHits] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [maxPage, setMaxPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImage, setLargeImage] = useState('');
 
-  onSearchSubmit = data => {
-    if (this.state.query === data) {
+  useEffect(() => {
+    if (query === '') {
       return;
     }
-    this.setState({ query: data, page: 1, hits: [] });
+    setIsLoading(true);
+    setTimeout(() => {
+      try {
+        fetchItems(query, page).then(resp => {
+          setHits(prevState => [...prevState, ...resp.data.hits]);
+          setMaxPage(Math.ceil(resp.data.totalHits / 12));
+        });
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 1000);
+  }, [page, query]);
 
+  const openModal = img => {
+    setShowModal(true);
+    setLargeImage(img.largeImageURL);
+  };
+  const closeModal = () => {
+    setShowModal(false);
   };
 
-  onBtnClick = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const onSearchSubmit = data => {
+    if (query === data) {
+      return;
+    }
+    setQuery(data);
+    setPage(1);
+    setHits([]);
   };
 
-  render() {
-    return (
-      <>
-        <Searchbar onSubmit={this.onSearchSubmit} />
-        {this.state.showModal && (
-          <Modal onClose={this.closeModal}>
-            <img src={this.state.largeImage} alt="" />
-          </Modal>
-        )}
-        {this.state.hits.length > 0 && (
-          <ImageGallery hits={this.state.hits} openModal={this.openModal} />
-        )}
-        {/* <div styled={{display: flex, alignItems: center, flexDirection: column,}}> */}
-        <Loader isLoading={this.state.isLoading} />
-        {this.state.page < this.state.maxPage && !this.state.isLoading && (
-          <Button onClick={this.onBtnClick} />
-        )}
-        {/* </div> */}
-      </>
-    );
-  }
+  const onBtnClick = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  return (
+    <>
+      <Searchbar onSubmit={onSearchSubmit} />
+      {showModal && (
+        <Modal onClose={closeModal}>
+          <img src={largeImage} alt="" />
+        </Modal>
+      )}
+      {hits.length > 0 && <ImageGallery hits={hits} openModal={openModal} />}
+      <Loader isLoading={isLoading} />
+      {page < maxPage && !isLoading && <Button onClick={onBtnClick} />}
+    </>
+  );
 }
